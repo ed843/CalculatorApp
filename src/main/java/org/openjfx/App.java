@@ -13,6 +13,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.openjfx.enums.Operation;
 
 import java.text.DecimalFormat;
@@ -62,12 +63,12 @@ public class App extends Application {
         gridPane.setBackground(background);
 
         // add calculator display text to grid pane
-        Font font = Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 25);
+        Font font = Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 36);
         var label1 = new Label(calculatorDisplayText);  // This label will show the display text
         label1.setMaxWidth(Double.MAX_VALUE);
         label1.setMaxHeight(Double.MAX_VALUE);
         label1.setTextFill(Paint.valueOf("white"));
-        label1.setAlignment(Pos.CENTER);
+        label1.setAlignment(Pos.CENTER_RIGHT);
         label1.setFont(font);
         gridPane.add(label1, 0, 0, 3, 1);
 
@@ -99,6 +100,21 @@ public class App extends Application {
             gridPane.add(button, (i - 1) % 3, ((i - 1) / 3) + 2); // Add button to the grid
         }
 
+        // add plus / minus button to grid pane with event handler
+        var plusMinusButton = new Button("+/-");
+        plusMinusButton.setMaxWidth(Double.MAX_VALUE);
+        plusMinusButton.setMaxHeight(Double.MAX_VALUE);
+        plusMinusButton.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            if(calculatorDisplayText.charAt(0) != '-') {
+                calculatorDisplayText = "-" + calculatorDisplayText;
+                label1.setText(calculatorDisplayText);
+            } else {
+                calculatorDisplayText = calculatorDisplayText.substring(1);
+                label1.setText(calculatorDisplayText);
+            }
+        });
+        gridPane.add(plusMinusButton,0, 5);
+
         // add zero button to the grid pane with event handler
         var zeroButton = new Button("0");
         zeroButton.setMaxWidth(Double.MAX_VALUE);  // Ensure the button expands to fill the cell
@@ -120,7 +136,13 @@ public class App extends Application {
         decimalButton.setMaxWidth(Double.MAX_VALUE);
         decimalButton.setMaxHeight(Double.MAX_VALUE);
         decimalButton.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            if (!resetFlag) {
+            // if there is already a dot in the calculator display, allow the user to retype the decimal place
+            if (calculatorDisplayText.contains(".") && !resetFlag) {
+                int dotIndex = calculatorDisplayText.indexOf(".");
+                calculatorDisplayText = calculatorDisplayText.substring(0, dotIndex + 1);
+                label1.setText(calculatorDisplayText);
+
+            } else if (!resetFlag) { // check for if calculator display already has a decimal place
                 calculatorDisplayText += ".";
                 label1.setText(calculatorDisplayText);
             } else {
@@ -204,9 +226,13 @@ public class App extends Application {
 
                     } else {
                         curOperation = Operation.values()[finalI];
-                        leftOperand = Double.parseDouble(calculatorDisplayText);
+                        try {
+                            leftOperand = formatter.parse(calculatorDisplayText).doubleValue();
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
                         calculatorDisplayText = "0";
-                        label1.setText(formatter.format(Double.parseDouble(calculatorDisplayText)));
+                        label1.setText(formatter.format(0));
                         resetFlag = true;
                     }
                 }
@@ -219,7 +245,11 @@ public class App extends Application {
         equalSign.setMaxHeight(Double.MAX_VALUE);
         equalSign.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
             if (!resetFlag) {
-                rightOperand = Double.parseDouble(calculatorDisplayText);
+                try {
+                    rightOperand = formatter.parse(calculatorDisplayText).doubleValue();
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
                 switch (curOperation) {
                     case PLUS:
                         calculatorDisplayText = formatter.format(leftOperand + rightOperand);

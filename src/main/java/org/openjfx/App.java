@@ -81,10 +81,18 @@ public class App extends Application {
             button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
                 if (!resetFlag) {
                     calculatorDisplayText += formatter.format(finalI);
-                    label1.setText(formatter.format(Double.parseDouble(calculatorDisplayText)));
+                    try {
+                        label1.setText(formatter.format(formatter.parse(calculatorDisplayText)));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     calculatorDisplayText = formatter.format(finalI);
-                    label1.setText(formatter.format(Double.parseDouble(calculatorDisplayText)));
+                    try {
+                        label1.setText(formatter.format(formatter.parse(calculatorDisplayText)));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                     resetFlag = false;
                 }
             });
@@ -106,6 +114,22 @@ public class App extends Application {
             } // if reset flag is enabled, do nothing
         });
         gridPane.add(zeroButton, 1, 5);
+
+        // add decimal button
+        var decimalButton = new Button(".");
+        decimalButton.setMaxWidth(Double.MAX_VALUE);
+        decimalButton.setMaxHeight(Double.MAX_VALUE);
+        decimalButton.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            if (!resetFlag) {
+                calculatorDisplayText += ".";
+                label1.setText(calculatorDisplayText);
+            } else {
+                calculatorDisplayText = "0.";
+                label1.setText(calculatorDisplayText);
+                resetFlag = false;
+            }
+        });
+        gridPane.add(decimalButton, 2, 5);
 
         // create clear button
         var clearButton = new Button("C");
@@ -234,7 +258,11 @@ public class App extends Application {
                         curOperation = NONE;
                         break;
                     case NONE:
-                        label1.setText("=" + formatter.format(calculatorDisplayText));
+                        try {
+                            label1.setText(formatter.format(formatter.parse(calculatorDisplayText)));
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
                         resetFlag = true;
                         break;
 

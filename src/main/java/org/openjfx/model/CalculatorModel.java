@@ -65,6 +65,13 @@ public class CalculatorModel {
         logger.info("Calculator state reset to initial values");
     }
 
+    public void clearEntry() {
+        logger.debug("Clearing calculator entry");
+        displayText = "0";
+        resetFlag = true;
+        logger.info("Calculator entry reset to initial values");
+    }
+
     public void toggleSign() throws ParseException {
         logger.debug("Toggling sign for value: {}", displayText);
         displayText = displayText.startsWith("-") ?

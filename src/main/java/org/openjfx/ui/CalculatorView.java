@@ -132,7 +132,9 @@ public class CalculatorView {
         squareRootButton.setOnMouseClicked(e -> controller.handleSquareRoot());
         gridPane.add(squareRootButton, 2, 2);
 
-
+        Button clearEntryButton = createButton("CE");
+        clearEntryButton.setOnMouseClicked(e -> controller.handleClearEntry());
+        gridPane.add(clearEntryButton, 1, 1);
     }
 
     private Button createButton(String text) {

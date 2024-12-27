@@ -73,6 +73,11 @@ public class CalculatorController {
         updateDisplay();
     }
 
+    public void handleClearEntry() {
+        model.clearEntry();
+        updateDisplay();
+    }
+
     public void handleDecimal() {
         logger.debug("Handling decimal point input");
         if (model.getDisplayText().contains(".") && !model.isResetFlag()) {

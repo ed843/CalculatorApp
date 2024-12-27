@@ -72,6 +72,19 @@ public class CalculatorModel {
         logger.info("Calculator entry reset to initial values");
     }
 
+    public void backSpace() {
+        logger.debug("Back-space");
+        if(!resetFlag) {
+            int displayTextLength = displayText.length() - 1;
+            if (displayTextLength >= 1) {
+                displayText = displayText.substring(0, displayTextLength);
+            } else {
+                displayText = "0";
+                resetFlag = true;
+            }
+        }
+    }
+
     public void toggleSign() throws ParseException {
         logger.debug("Toggling sign for value: {}", displayText);
         displayText = displayText.startsWith("-") ?

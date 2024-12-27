@@ -78,6 +78,11 @@ public class CalculatorController {
         updateDisplay();
     }
 
+    public void handleBackSpace() {
+        model.backSpace();
+        updateDisplay();
+    }
+
     public void handleDecimal() {
         logger.debug("Handling decimal point input");
         if (model.getDisplayText().contains(".") && !model.isResetFlag()) {

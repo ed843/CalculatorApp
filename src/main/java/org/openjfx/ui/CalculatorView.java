@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.*;
@@ -26,7 +28,72 @@ public class CalculatorView {
 
         setupGridPane();
         addButtons();
+        setupKeyboardHandling();
         logger.info("CalculatorView initialization completed");
+    }
+
+
+    private boolean shiftPressed = false;  // Add this field to the class
+
+    private void setupKeyboardHandling() {
+        logger.debug("Setting up keyboard event handling");
+        gridPane.setFocusTraversable(true);
+
+        gridPane.setOnKeyPressed(event -> {
+            logger.debug("Key pressed: {}", event.getCode());
+
+            if (event.getCode() == KeyCode.SHIFT) {
+                shiftPressed = true;
+                event.consume();
+                return;
+            }
+
+            if (shiftPressed && event.getCode() == KeyCode.EQUALS) {
+                controller.handleOperation(0);  // Addition
+                event.consume();
+                return;
+            }
+
+            switch (event.getCode()) {
+                case DIGIT0, NUMPAD0 -> controller.handleNumber(0);
+                case DIGIT1, NUMPAD1 -> controller.handleNumber(1);
+                case DIGIT2, NUMPAD2 -> {
+                    if (!shiftPressed) {
+                        controller.handleNumber(2);
+                    } else {
+                        controller.handleSquareRoot();
+                    }
+                }
+                case DIGIT3, NUMPAD3 -> controller.handleNumber(3);
+                case DIGIT4, NUMPAD4 -> controller.handleNumber(4);
+                case DIGIT5, NUMPAD5 -> controller.handleNumber(5);
+                case DIGIT6, NUMPAD6 -> controller.handleNumber(6);
+                case DIGIT7, NUMPAD7 -> controller.handleNumber(7);
+                case DIGIT8, NUMPAD8 -> controller.handleNumber(8);
+                case DIGIT9, NUMPAD9 -> controller.handleNumber(9);
+                case ADD -> controller.handleOperation(0);
+                case SUBTRACT, MINUS -> controller.handleOperation(1);
+                case MULTIPLY -> controller.handleOperation(2);
+                case DIVIDE, SLASH -> controller.handleOperation(3);
+                case ENTER -> controller.handleEquals();
+                case EQUALS -> {
+                    if (!shiftPressed) controller.handleEquals();
+                }
+                case PERIOD, DECIMAL -> controller.handleDecimal();
+                case ESCAPE -> controller.handleClear();
+                case Q -> controller.handleSquared();
+                case R -> controller.handleOneOverX();
+                case DELETE -> controller.handleClearEntry();
+            }
+            event.consume();
+        });
+
+        gridPane.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.SHIFT) {
+                shiftPressed = false;
+                event.consume();
+            }
+        });
     }
 
     private void setupGridPane() {
@@ -83,7 +150,10 @@ public class CalculatorView {
         for (int i = 1; i <= 9; i++) {
             Button button = createButton(String.valueOf(i));
             int finalI = i;
-            button.setOnMouseClicked(e -> controller.handleNumber(finalI));
+            button.setOnAction(e -> {
+                controller.handleNumber(finalI);
+                gridPane.requestFocus();
+            });
             gridPane.add(button, (i - 1) % 3, ((i - 1) / 3) + 3);
         }
     }
@@ -93,48 +163,85 @@ public class CalculatorView {
         for (int i = 0; i < operations.length; i++) {
             Button button = createButton(operations[i]);
             int finalI = i;
-            button.setOnMouseClicked(e -> controller.handleOperation(finalI));
+            button.setOnAction(e -> {
+                controller.handleOperation(finalI);
+                gridPane.requestFocus();
+            });
             gridPane.add(button, 3, i + 2);
         }
     }
 
     private void addSpecialButtons() {
         Button zeroButton = createButton("0");
-        zeroButton.setOnMouseClicked(e -> controller.handleNumber(0));
+        zeroButton.setOnAction(e -> {
+            controller.handleNumber(0);
+            gridPane.requestFocus();
+        });
         gridPane.add(zeroButton, 1, 6);
 
         Button clearButton = createButton("C");
-        clearButton.setOnMouseClicked(e -> controller.handleClear());
+        clearButton.setOnAction(e -> {
+            controller.handleClear();
+            gridPane.requestFocus();
+        });
         gridPane.add(clearButton, 2, 1);
 
         Button equalButton = createButton("=");
-        equalButton.setOnMouseClicked(e -> controller.handleEquals());
+        equalButton.setOnAction(e -> {
+            controller.handleEquals();
+            gridPane.requestFocus();
+        });
         gridPane.add(equalButton, 3, 6);
 
         Button decimalButton = createButton(".");
-        decimalButton.setOnMouseClicked(e -> controller.handleDecimal());
+        decimalButton.setOnAction(e -> {
+            controller.handleDecimal();
+            gridPane.requestFocus();
+        });
         gridPane.add(decimalButton, 2, 6);
 
         Button plusMinusButton = createButton("+/-");
-        plusMinusButton.setOnMouseClicked(e -> controller.handlePlusMinus());
+        plusMinusButton.setOnAction(e -> {
+            controller.handlePlusMinus();
+            gridPane.requestFocus();
+        });
         gridPane.add(plusMinusButton, 0, 6);
 
         Button oneOverXButton = createButton("⅟x");
-        oneOverXButton.setOnMouseClicked(e -> controller.handleOneOverX());
+        oneOverXButton.setOnAction(e -> {
+            controller.handleOneOverX();
+            gridPane.requestFocus();
+        });
         gridPane.add(oneOverXButton, 0, 2);
 
         // create squared button text
         Button squaredButton = createButton("x²");
-        squaredButton.setOnMouseClicked(e -> controller.handleSquared());
+        squaredButton.setOnAction(e -> {
+            controller.handleSquared();
+            gridPane.requestFocus();
+        });
         gridPane.add(squaredButton, 1, 2);
 
         Button squareRootButton = createButton("√x");
-        squareRootButton.setOnMouseClicked(e -> controller.handleSquareRoot());
+        squareRootButton.setOnAction(e -> {
+            controller.handleSquareRoot();
+            gridPane.requestFocus();
+        });
         gridPane.add(squareRootButton, 2, 2);
 
         Button clearEntryButton = createButton("CE");
-        clearEntryButton.setOnMouseClicked(e -> controller.handleClearEntry());
+        clearEntryButton.setOnAction(e -> {
+            controller.handleClearEntry();
+            gridPane.requestFocus();
+        });
         gridPane.add(clearEntryButton, 1, 1);
+
+        Button backSpaceButton = createButton("⌫");
+        backSpaceButton.setOnAction(e -> {
+            controller.handleBackSpace();
+            gridPane.requestFocus();
+        });
+        gridPane.add(backSpaceButton, 3, 1);
     }
 
     private Button createButton(String text) {
@@ -142,6 +249,10 @@ public class CalculatorView {
         Button button = new Button(text);
         button.setMaxWidth(Double.MAX_VALUE);
         button.setMaxHeight(Double.MAX_VALUE);
+
+        // Disable focus traversable to prevent keyboard focus
+        button.setFocusTraversable(false);
+
         return button;
     }
 

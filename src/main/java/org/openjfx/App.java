@@ -1,7 +1,10 @@
 package org.openjfx;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +21,8 @@ public class App extends Application {
             Scene scene = new Scene(calculator.getView(), 640, 480);
             stage.setScene(scene);
             stage.show();
+            // Request focus for keyboard input
+            calculator.getView().requestFocus();
             logger.info("Calculator UI initialized successfully");
         } catch (Exception e) {
             logger.error("Failed to initialize calculator application", e);

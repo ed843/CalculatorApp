@@ -18,18 +18,24 @@ public class CalculatorModel {
             case MINUS -> leftOperand - rightOperand;
             case MULTIPLY -> leftOperand * rightOperand;
             case DIVIDE -> leftOperand / rightOperand;
-            case NONE -> Double.parseDouble(displayText);
+            case NONE -> leftOperand;
         };
+        leftOperand = result;  // Store the result in leftOperand
         currentOperation = Operation.NONE;
         return formatter.format(result);
     }
 
     public void setOperand(String value) throws ParseException {
+        double parsedValue = formatter.parse(value).doubleValue();
         if (currentOperation == Operation.NONE) {
-            leftOperand = formatter.parse(value).doubleValue();
+            leftOperand = parsedValue;
         } else {
-            rightOperand = formatter.parse(value).doubleValue();
+            rightOperand = parsedValue;
         }
+    }
+
+    public double getLeftOperand() {
+        return leftOperand;
     }
 
     public void clear() {
@@ -38,6 +44,14 @@ public class CalculatorModel {
         displayText = "0";
         resetFlag = true;
         currentOperation = Operation.NONE;
+    }
+
+    public void toggleSign() throws ParseException {
+        displayText = displayText.startsWith("-") ?
+                displayText.substring(1) :
+                "-" + displayText;
+        // Immediately update the operand when toggling sign
+        setOperand(displayText);
     }
 
     // Getters and setters

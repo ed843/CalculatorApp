@@ -30,8 +30,8 @@ public class CalculatorController {
             try {
                 model.setOperand(model.getDisplayText());
                 if (model.getCurrentOperation() != Operation.NONE) {
-                    model.setDisplayText(model.calculate());
-                    model.setOperand(model.getDisplayText()); // Store result as left operand
+                    String result = model.calculate();
+                    model.setDisplayText(result);
                 }
                 model.setCurrentOperation(Operation.values()[operationIndex]);
                 model.setResetFlag(true);
@@ -40,7 +40,6 @@ public class CalculatorController {
                 handleError(e);
             }
         } else {
-            // Allow changing operation even when reset flag is true
             model.setCurrentOperation(Operation.values()[operationIndex]);
         }
     }
@@ -51,7 +50,6 @@ public class CalculatorController {
                 model.setOperand(model.getDisplayText());
                 String result = model.calculate();
                 model.setDisplayText(result);
-                model.setOperand(result); // Store result as left operand
                 updateDisplay();
                 model.setResetFlag(true);
             } catch (ParseException e) {
@@ -79,12 +77,12 @@ public class CalculatorController {
     }
 
     public void handlePlusMinus() {
-        if (model.getDisplayText().charAt(0) != '-') {
-            model.setDisplayText("-" + model.getDisplayText());
-        } else {
-            model.setDisplayText(model.getDisplayText().substring(1));
+        try {
+            model.toggleSign();
+            updateDisplay();
+        } catch (ParseException e) {
+            handleError(e);
         }
-        updateDisplay();
     }
 
     private void updateDisplay() {

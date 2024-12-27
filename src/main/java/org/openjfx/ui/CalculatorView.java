@@ -119,6 +119,10 @@ public class CalculatorView {
         plusMinusButton.setOnMouseClicked(e -> controller.handlePlusMinus());
         gridPane.add(plusMinusButton, 0, 6);
 
+        Button oneOverXButton = createButton("⅟x");
+        oneOverXButton.setOnMouseClicked(e -> controller.handleOneOverX());
+        gridPane.add(oneOverXButton, 0, 2);
+
         // create squared button text
         Button squaredButton = createButton("x²");
         squaredButton.setOnMouseClicked(e -> controller.handleSquared());
@@ -127,6 +131,8 @@ public class CalculatorView {
         Button squareRootButton = createButton("√x");
         squareRootButton.setOnMouseClicked(e -> controller.handleSquareRoot());
         gridPane.add(squareRootButton, 2, 2);
+
+
     }
 
     private Button createButton(String text) {
@@ -141,3 +147,4 @@ public class CalculatorView {
         return gridPane;
     }
 }
+

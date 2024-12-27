@@ -74,6 +74,20 @@ public class CalculatorModel {
         logger.debug("Sign toggled, new value: {}", displayText);
     }
 
+    public void reciprocalValue(String value) throws ParseException {
+        logger.debug("calculating reciprocal for value: {}", displayText);
+        try {
+            double parsedValue = formatter.parse(value).doubleValue();
+            String result = formatter.format(1 / parsedValue);
+            setDisplayText(result);
+            setOperand(result);
+            logger.debug("Reciprocal value result: {}", result);
+        } catch (ParseException e) {
+            logger.error("Failed to parse reciprocal value: {}", value, e);
+            throw e;
+        }
+    }
+
     public void squareValue(String value) throws ParseException {
         logger.debug("Calculating square of: {}", value);
         try {
@@ -98,6 +112,7 @@ public class CalculatorModel {
             logger.debug("Square root value result: {}", result);
         } catch (ParseException e) {
             logger.error("Failed to square root value: {}", value, e);
+            throw e;
         }
     }
     // Getters and setters

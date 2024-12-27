@@ -96,6 +96,15 @@ public class CalculatorController {
         }
     }
 
+    public void handleOneOverX() {
+        try {
+            model.reciprocalValue(model.getDisplayText());
+            updateDisplay();
+        } catch (ParseException e) {
+            handleError(e);
+        }
+    }
+
     public void handleSquared() {
         try {
             model.squareValue(model.getDisplayText());

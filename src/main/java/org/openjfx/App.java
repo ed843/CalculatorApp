@@ -27,6 +27,7 @@ public class App extends Application {
             stage.setMinWidth(400);
             stage.setMinHeight(600);
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.show();
             calculator.getView().requestFocus();
             logger.info("Calculator UI initialized successfully");

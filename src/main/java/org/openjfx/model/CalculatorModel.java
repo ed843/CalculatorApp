@@ -1,5 +1,7 @@
 package org.openjfx.model;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openjfx.enums.Operation;
@@ -13,13 +15,13 @@ public class CalculatorModel {
     private double rightOperand;
     private String displayText = "0";
     private boolean resetFlag = true;
-    private Operation currentOperation = Operation.NONE;
+    private final ObjectProperty<Operation> currentOperation = new SimpleObjectProperty<>(Operation.NONE);
 
     public String calculate() {
         logger.debug("Calculating with operation: {}, left operand: {}, right operand: {}",
                 currentOperation, leftOperand, rightOperand);
 
-        double result = switch (currentOperation) {
+        double result = switch (currentOperation.get()) {
             case PLUS -> leftOperand + rightOperand;
             case MINUS -> leftOperand - rightOperand;
             case MULTIPLY -> leftOperand * rightOperand;
@@ -28,17 +30,18 @@ public class CalculatorModel {
         };
 
         leftOperand = result;
-        currentOperation = Operation.NONE;
+        currentOperation.set(Operation.NONE);
         String formattedResult = formatter.format(result);
         logger.info("Calculation result: {}", formattedResult);
         return formattedResult;
     }
 
+
     public void setOperand(String value) throws ParseException {
         logger.debug("Attempting to set operand with value: {}", value);
         try {
             double parsedValue = formatter.parse(value).doubleValue();
-            if (currentOperation == Operation.NONE) {
+            if (currentOperation.get() == Operation.NONE) {
                 leftOperand = parsedValue;
                 logger.debug("Set left operand to: {}", leftOperand);
             } else {
@@ -61,7 +64,7 @@ public class CalculatorModel {
         rightOperand = 0;
         displayText = "0";
         resetFlag = true;
-        currentOperation = Operation.NONE;
+        currentOperation.set(Operation.NONE);
         logger.info("Calculator state reset to initial values");
     }
 
@@ -143,10 +146,15 @@ public class CalculatorModel {
     }
     public boolean isResetFlag() { return resetFlag; }
     public void setResetFlag(boolean flag) { this.resetFlag = flag; }
-    public Operation getCurrentOperation() { return currentOperation; }
+    public Operation getCurrentOperation() {
+        return currentOperation.get();
+    }
     public void setCurrentOperation(Operation operation) {
         logger.debug("Setting operation to: {}", operation);
-        this.currentOperation = operation;
+        currentOperation.set(operation);
+    }
+    public ObjectProperty<Operation> currentOperationProperty() {
+        return currentOperation;
     }
     public DecimalFormat getFormatter() { return formatter; }
 }

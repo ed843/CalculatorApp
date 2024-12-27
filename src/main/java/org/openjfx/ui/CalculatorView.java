@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.*;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +20,13 @@ public class CalculatorView {
     private final GridPane gridPane;
     private final Label displayLabel;
     private final CalculatorController controller;
+
+    private static final Color BACKGROUND_COLOR = Color.rgb(28, 28, 30);
+    private static final Color DISPLAY_BACKGROUND = Color.rgb(44, 44, 46);
+    private static final Color NUMBER_BUTTON_COLOR = Color.rgb(58, 58, 60);
+    private static final Color OPERATION_BUTTON_COLOR = Color.rgb(255, 159, 10);
+    private static final Color SPECIAL_BUTTON_COLOR = Color.rgb(72, 72, 74);
+    private static final Color TEXT_COLOR = Color.WHITE;
 
     public CalculatorView() {
         logger.info("Initializing CalculatorView");
@@ -98,6 +106,9 @@ public class CalculatorView {
 
     private void setupGridPane() {
         logger.debug("Setting up GridPane layout");
+        gridPane.setPadding(new Insets(20));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
         setupGridConstraints();
         setupBackground();
         gridPane.add(displayLabel, 0, 0, 4, 1);
@@ -118,16 +129,26 @@ public class CalculatorView {
     }
 
     private void setupBackground() {
-        var backgroundFill = new BackgroundFill(Paint.valueOf("black"), CornerRadii.EMPTY, Insets.EMPTY);
+        var backgroundFill = new BackgroundFill(BACKGROUND_COLOR, new CornerRadii(20), Insets.EMPTY);
         gridPane.setBackground(new Background(backgroundFill));
     }
 
     private Label createDisplayLabel() {
         Label label = new Label("0");
-        Font font = Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 36);
+        label.setStyle(String.format("""
+            -fx-background-color: rgb(%d, %d, %d);
+            -fx-background-radius: 10;
+            -fx-padding: 20;
+            """,
+                (int)(DISPLAY_BACKGROUND.getRed() * 255),
+                (int)(DISPLAY_BACKGROUND.getGreen() * 255),
+                (int)(DISPLAY_BACKGROUND.getBlue() * 255)));
+
+        Font font = Font.font("SF Pro Display", FontWeight.LIGHT, 48);
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMaxHeight(Double.MAX_VALUE);
-        label.setTextFill(Paint.valueOf("white"));
+        label.setMinHeight(100);
+        label.setTextFill(TEXT_COLOR);
         label.setAlignment(Pos.CENTER_RIGHT);
         label.setFont(font);
         return label;
@@ -148,7 +169,7 @@ public class CalculatorView {
 
     private void addNumberButtons() {
         for (int i = 1; i <= 9; i++) {
-            Button button = createButton(String.valueOf(i));
+            Button button = createButton(String.valueOf(i), NUMBER_BUTTON_COLOR);
             int finalI = i;
             button.setOnAction(e -> {
                 controller.handleNumber(finalI);
@@ -159,9 +180,9 @@ public class CalculatorView {
     }
 
     private void addOperationButtons() {
-        String[] operations = {"+", "-", "*", "/"};
+        String[] operations = {"+", "-", "×", "÷"};
         for (int i = 0; i < operations.length; i++) {
-            Button button = createButton(operations[i]);
+            Button button = createButton(operations[i], OPERATION_BUTTON_COLOR);
             int finalI = i;
             button.setOnAction(e -> {
                 controller.handleOperation(finalI);
@@ -172,71 +193,78 @@ public class CalculatorView {
     }
 
     private void addSpecialButtons() {
-        Button zeroButton = createButton("0");
+        // Zero button
+        Button zeroButton = createButton("0", NUMBER_BUTTON_COLOR);
         zeroButton.setOnAction(e -> {
             controller.handleNumber(0);
             gridPane.requestFocus();
         });
         gridPane.add(zeroButton, 1, 6);
 
-        Button clearButton = createButton("C");
+        // Clear button
+        Button clearButton = createButton("C", SPECIAL_BUTTON_COLOR);
         clearButton.setOnAction(e -> {
             controller.handleClear();
             gridPane.requestFocus();
         });
         gridPane.add(clearButton, 2, 1);
 
-        Button equalButton = createButton("=");
+        // Equal button
+        Button equalButton = createButton("=", OPERATION_BUTTON_COLOR);
         equalButton.setOnAction(e -> {
             controller.handleEquals();
             gridPane.requestFocus();
         });
         gridPane.add(equalButton, 3, 6);
 
-        Button decimalButton = createButton(".");
+        // Other special buttons...
+        addRemainingSpecialButtons();
+    }
+
+    private void addRemainingSpecialButtons() {
+        Button decimalButton = createButton(".", NUMBER_BUTTON_COLOR);
         decimalButton.setOnAction(e -> {
             controller.handleDecimal();
             gridPane.requestFocus();
         });
         gridPane.add(decimalButton, 2, 6);
 
-        Button plusMinusButton = createButton("+/-");
+        Button plusMinusButton = createButton("±", SPECIAL_BUTTON_COLOR);
         plusMinusButton.setOnAction(e -> {
             controller.handlePlusMinus();
             gridPane.requestFocus();
         });
         gridPane.add(plusMinusButton, 0, 6);
 
-        Button oneOverXButton = createButton("⅟x");
+        Button oneOverXButton = createButton("1/x", SPECIAL_BUTTON_COLOR);
         oneOverXButton.setOnAction(e -> {
             controller.handleOneOverX();
             gridPane.requestFocus();
         });
         gridPane.add(oneOverXButton, 0, 2);
 
-        // create squared button text
-        Button squaredButton = createButton("x²");
+        Button squaredButton = createButton("x²", SPECIAL_BUTTON_COLOR);
         squaredButton.setOnAction(e -> {
             controller.handleSquared();
             gridPane.requestFocus();
         });
         gridPane.add(squaredButton, 1, 2);
 
-        Button squareRootButton = createButton("√x");
+        Button squareRootButton = createButton("√", SPECIAL_BUTTON_COLOR);
         squareRootButton.setOnAction(e -> {
             controller.handleSquareRoot();
             gridPane.requestFocus();
         });
         gridPane.add(squareRootButton, 2, 2);
 
-        Button clearEntryButton = createButton("CE");
+        Button clearEntryButton = createButton("CE", SPECIAL_BUTTON_COLOR);
         clearEntryButton.setOnAction(e -> {
             controller.handleClearEntry();
             gridPane.requestFocus();
         });
         gridPane.add(clearEntryButton, 1, 1);
 
-        Button backSpaceButton = createButton("⌫");
+        Button backSpaceButton = createButton("⌫", SPECIAL_BUTTON_COLOR);
         backSpaceButton.setOnAction(e -> {
             controller.handleBackSpace();
             gridPane.requestFocus();
@@ -244,14 +272,53 @@ public class CalculatorView {
         gridPane.add(backSpaceButton, 3, 1);
     }
 
-    private Button createButton(String text) {
+    private Button createButton(String text, Color backgroundColor) {
         logger.trace("Creating button with text: {}", text);
         Button button = new Button(text);
         button.setMaxWidth(Double.MAX_VALUE);
         button.setMaxHeight(Double.MAX_VALUE);
-
-        // Disable focus traversable to prevent keyboard focus
+        button.setMinHeight(60);
         button.setFocusTraversable(false);
+
+        // Modern button styling
+        button.setStyle(String.format("""
+            -fx-background-color: rgb(%d, %d, %d);
+            -fx-text-fill: white;
+            -fx-font-family: 'SF Pro Display';
+            -fx-font-size: 18;
+            -fx-background-radius: 30;
+            -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+            """,
+                (int)(backgroundColor.getRed() * 255),
+                (int)(backgroundColor.getGreen() * 255),
+                (int)(backgroundColor.getBlue() * 255)));
+
+        // Hover effect
+        button.setOnMouseEntered(e ->
+                button.setStyle(String.format("""
+                -fx-background-color: rgb(%d, %d, %d);
+                -fx-text-fill: white;
+                -fx-font-family: 'SF Pro Display';
+                -fx-font-size: 18;
+                -fx-background-radius: 30;
+                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 15, 0, 0, 0);
+                """,
+                        (int)(backgroundColor.getBrightness() * 1.2 * 255),
+                        (int)(backgroundColor.getBrightness() * 1.2 * 255),
+                        (int)(backgroundColor.getBrightness() * 1.2 * 255))));
+
+        button.setOnMouseExited(e ->
+                button.setStyle(String.format("""
+                -fx-background-color: rgb(%d, %d, %d);
+                -fx-text-fill: white;
+                -fx-font-family: 'SF Pro Display';
+                -fx-font-size: 18;
+                -fx-background-radius: 30;
+                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+                """,
+                        (int)(backgroundColor.getRed() * 255),
+                        (int)(backgroundColor.getGreen() * 255),
+                        (int)(backgroundColor.getBlue() * 255))));
 
         return button;
     }

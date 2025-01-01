@@ -75,13 +75,12 @@ public class CalculatorView {
     }
 
     private void setupBorderPane(Stage stage) {
-        // Set the calculator view in the center
         root.setCenter(this.getView());
 
         // Style the BorderPane with the same dark theme and rounded corners
         BackgroundFill backgroundFill = new BackgroundFill(
                 BACKGROUND_COLOR,
-                new CornerRadii(20),  // Matching the corner radius from gridPane
+                new CornerRadii(20),
                 Insets.EMPTY
         );
         root.setBackground(new Background(backgroundFill));
@@ -113,7 +112,7 @@ public class CalculatorView {
 
 
     private Button createExitButton(Stage stage) {
-        Button exitButton = new Button("×");  // Using × instead of X for a more polished look
+        Button exitButton = new Button("×");
         exitButton.setStyle("""
         -fx-background-color: transparent;
         -fx-text-fill: rgb(255, 255, 255, 0.8);

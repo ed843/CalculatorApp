@@ -12,10 +12,10 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         CalculatorView calculatorView = new CalculatorView(stage);
-        Scene scene = new Scene(calculatorView.getRoot(), 410, 610); // Example dimensions
+        Scene scene = new Scene(calculatorView.getRoot(), 410, 610);
         scene.setFill(Color.TRANSPARENT);
         stage.setScene(scene);
-        stage.initStyle(StageStyle.TRANSPARENT); // Removes the default window decorations
+        stage.initStyle(StageStyle.TRANSPARENT);
         stage.show();
     }
 

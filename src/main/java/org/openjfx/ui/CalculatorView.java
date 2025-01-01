@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.openjfx.controller.CalculatorController;
 import org.openjfx.enums.Operation;
 import org.openjfx.model.CalculatorModel;
+import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,10 @@ public class CalculatorView {
     private final Label displayLabel;
     private final CalculatorController controller;
     private final Map<Operation, Button> operationButtons = new HashMap<>();
+    private final BorderPane root;
     private boolean shiftPressed = false;
+    private double xOffset = 0;
+    private double yOffset = 0;
 
     private static final Color BACKGROUND_COLOR = Color.rgb(28, 28, 30);
     private static final Color DISPLAY_BACKGROUND = Color.rgb(44, 44, 46);
@@ -33,12 +37,13 @@ public class CalculatorView {
     private static final Color SPECIAL_BUTTON_COLOR = Color.rgb(72, 72, 74);
     private static final Color TEXT_COLOR = Color.WHITE;
 
-    public CalculatorView() {
+    public CalculatorView(Stage stage) {
         logger.info("Initializing CalculatorView");
         gridPane = new GridPane();
         displayLabel = createDisplayLabel();
         CalculatorModel model = new CalculatorModel();
         controller = new CalculatorController(model, displayLabel);
+        root = new BorderPane();
 
         // Add listener to update operation button states
         model.currentOperationProperty().addListener((obs, oldOp, newOp) -> {
@@ -48,7 +53,13 @@ public class CalculatorView {
         setupGridPane();
         addButtons();
         setupKeyboardHandling();
+        setupBorderPane(stage);
+        addExitButton(stage);
         logger.info("CalculatorView initialization completed");
+    }
+
+    public BorderPane getRoot() {
+        return root;
     }
 
     private void updateOperationButtonStates(Operation oldOp, Operation newOp) {
@@ -61,6 +72,92 @@ public class CalculatorView {
         if (newOp != null && newOp != Operation.NONE && operationButtons.containsKey(newOp)) {
             setOperationButtonStyle(operationButtons.get(newOp), OPERATION_ACTIVE_COLOR, true);
         }
+    }
+
+    private void setupBorderPane(Stage stage) {
+        // Set the calculator view in the center
+        root.setCenter(this.getView());
+
+        // Style the BorderPane with the same dark theme and rounded corners
+        BackgroundFill backgroundFill = new BackgroundFill(
+                BACKGROUND_COLOR,
+                new CornerRadii(20),  // Matching the corner radius from gridPane
+                Insets.EMPTY
+        );
+        root.setBackground(new Background(backgroundFill));
+
+        // Add padding around the entire calculator
+        root.setPadding(new Insets(10));
+
+        // Setup window drag functionality
+        root.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+
+        root.setOnMouseDragged(event -> {
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        });
+
+        // Add a subtle border effect
+        root.setStyle("""
+        -fx-border-color: rgba(255, 255, 255, 0.1);
+        -fx-border-width: 1px;
+        -fx-border-radius: 20px;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 15, 0, 0, 0);
+        """);
+    }
+
+
+
+
+    private Button createExitButton(Stage stage) {
+        Button exitButton = new Button("×");  // Using × instead of X for a more polished look
+        exitButton.setStyle("""
+        -fx-background-color: transparent;
+        -fx-text-fill: rgb(255, 255, 255, 0.8);
+        -fx-font-family: 'SF Pro Display';
+        -fx-font-size: 18;
+        -fx-cursor: hand;
+        -fx-padding: 5 10;
+        """);
+
+        // Add hover effect
+        exitButton.setOnMouseEntered(e -> exitButton.setStyle("""
+        -fx-background-color: rgba(255, 59, 48, 0.8);
+        -fx-text-fill: white;
+        -fx-font-family: 'SF Pro Display';
+        -fx-font-size: 18;
+        -fx-cursor: hand;
+        -fx-padding: 5 10;
+        -fx-background-radius: 5;
+        """));
+
+        exitButton.setOnMouseExited(e -> exitButton.setStyle("""
+        -fx-background-color: transparent;
+        -fx-text-fill: rgb(255, 255, 255, 0.8);
+        -fx-font-family: 'SF Pro Display';
+        -fx-font-size: 18;
+        -fx-cursor: hand;
+        -fx-padding: 5 10;
+        """));
+
+        exitButton.setOnAction(event -> stage.close());
+        return exitButton;
+    }
+
+    private void addExitButton(Stage stage) {
+        Button exitButton = createExitButton(stage);
+        HBox topBar = new HBox(exitButton);
+        topBar.setAlignment(Pos.TOP_RIGHT);
+        topBar.setPadding(new Insets(5, 5, 0, 0));
+        topBar.setBackground(new Background(new BackgroundFill(
+                BACKGROUND_COLOR,
+                new CornerRadii(20, 20, 0, 0, false),  // Rounded top corners only
+                Insets.EMPTY
+        )));
+        root.setTop(topBar);
     }
 
 
